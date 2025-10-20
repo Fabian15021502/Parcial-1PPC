@@ -8,7 +8,6 @@ import com.example.parcial1ppc.data.model.PitStop
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-// Interfaz para el repositorio (ideal para pruebas unitarias)
 interface IPitStopRepository {
     fun getAllPitStops(): Flow<List<PitStop>>
     fun searchPitStops(query: String): Flow<List<PitStop>>

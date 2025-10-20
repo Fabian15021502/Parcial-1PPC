@@ -15,17 +15,7 @@ interface IPitStopRepository {
     suspend fun deletePitStop(id: Int)
 }
 
-// Implementación temporal en memoria con datos de ejemplo
-class PitStopRepository : IPitStopRepository {
-
-    // 1. Datos de ejemplo basados en el Listado del Mockup
-    private val initialList = listOf(
-        PitStop(1, "Oliveiro", "Mercedes", 2.4, "Soft", 4, "Ok", null, "John Doe", "12/05/2024 14:30"),
-        PitStop(2, "James", "Ferrari", 2.8, "Medium", 4, "Fallido", "Fallo tuerca", "Jane Smith", "12/05/2024 14:40"),
-        PitStop(3, "Mark", "Red Bull", 2.3, "Hard", 4, "Ok", null, "Max B.", "12/05/2024 14:50"),
-        PitStop(4, "Sebastian", "Aston Martin", 3.1, "Soft", 4, "Fallido", "Error gato", "Peter K.", "12/05/2024 15:00"),
-        PitStop(5, "Lucas", "McLaren", 3.0, "Medium", 4, "Fallido", "Neumático duro", "Ana C.", "12/05/2024 15:10")
-    )
+class PitStopRepository(private val pitStopDao: PitStopDao) : IPitStopRepository {
 
     // MutableStateFlow simula la fuente de datos reactiva (como un LiveData o Flow de Room)
     private val _pitStops = MutableStateFlow(initialList)
@@ -48,17 +38,17 @@ class PitStopRepository : IPitStopRepository {
     }
 
     override fun searchPitStops(query: String): Flow<List<PitStop>> {
-        // Implementa requisito: Buscar pit stop
-        return _pitStops.map { list ->
-            if (query.isBlank()) {
-                list
-            } else {
-                list.filter {
-                    // Búsqueda simple por Piloto o Escudería
-                    it.piloto.contains(query, ignoreCase = true) ||
-                            it.escuderia.contains(query, ignoreCase = true)
-                }
-            }
+        return pitStopDao.searchPitStops(query).map { entities ->
+            entities.map { it.toDomain() }
         }
+    }
+
+    override suspend fun savePitStop(pitStop: PitStop) {
+        pitStopDao.insert(pitStop.toEntity())
+    }
+
+    override suspend fun deletePitStop(id: Int) {
+        val pitStopToDelete = PitStopEntity(id = id, piloto = "", escuderia = "", tiempoTotal = 0.0, cambioNeumaticos = "", numeroNeumaticosCambiados = 0, estado = "", motivoFallo = null, mecanicoPrincipal = "", fechaHora = "")
+        pitStopDao.delete(pitStopToDelete)
     }
 }

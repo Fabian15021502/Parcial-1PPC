@@ -13,3 +13,12 @@ interface PitStopDao {
     // Requisito: Eliminar pit stop
     @Delete
     suspend fun delete(pitStop: PitStopEntity)
+
+    // Requisito: Mostrar listado de pit stops
+    @Query("SELECT * FROM pit_stops ORDER BY fechaHora DESC")
+    fun getAllPitStops(): Flow<List<PitStopEntity>>
+
+    // Requisito: Buscar pit stop
+    @Query("SELECT * FROM pit_stops WHERE piloto LIKE '%' || :query || '%' OR escuderia LIKE '%' || :query || '%' ORDER BY fechaHora DESC")
+    fun searchPitStops(query: String): Flow<List<PitStopEntity>>
+}

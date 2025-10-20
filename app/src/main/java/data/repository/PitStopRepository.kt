@@ -1,5 +1,3 @@
-// Paquete: com.example.parcial1ppc.data.repository
-
 package com.example.parcial1ppc.data.repository
 
 import com.example.parcial1ppc.data.local.dao.PitStopDao

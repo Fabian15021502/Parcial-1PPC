@@ -1,4 +1,6 @@
 package com.example.parcial1ppc.ui.listado
+import kotlinx.coroutines.flow.Flow
+import com.example.parcial1ppc.data.model.PitStop
 //... (Implementación ya provista en la sección anterior, usando IPitStopRepository)
 // Paquete: com.example.parcial1ppc.data.repository
 
@@ -15,3 +17,4 @@ interface IPitStopRepository {
     // Elimina el PitStop por su ID
     suspend fun deletePitStop(id: Int)
 }
+

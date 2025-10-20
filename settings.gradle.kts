@@ -1,12 +1,9 @@
+// settings.gradle.kts
+
 pluginManagement {
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
+        // Obligatorio para KSP y Android Gradle Plugin
+        google()
         mavenCentral()
         gradlePluginPortal()
     }
@@ -19,5 +16,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Parcial#1PPC"
+rootProject.name = "Parcial1PPC"
 include(":app")

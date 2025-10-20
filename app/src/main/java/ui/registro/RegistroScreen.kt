@@ -1,20 +1,22 @@
 package com.example.parcial1ppc.ui.registro
 
+import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistroScreen(
     viewModel: RegistroViewModel,
@@ -22,6 +24,9 @@ fun RegistroScreen(
     onCancel: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    var expanded by remember { mutableStateOf(false) }
+    val options = listOf("Completado", "Fallido")
 
     Scaffold(
         topBar = {
@@ -29,7 +34,7 @@ fun RegistroScreen(
                 title = { Text("Registrar Pit Stop") },
                 navigationIcon = {
                     IconButton(onClick = onCancel) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Cancelar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Cancelar")
                     }
                 }
             )
@@ -41,11 +46,10 @@ fun RegistroScreen(
                 .padding(16.dp)
         ) {
             item {
-                // Título del Mockup
                 Text(text = "Registrar Pit Stop", style = MaterialTheme.typography.headlineMedium)
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Campos de entrada (Mockup: Piloto, Escudería, Tiempo Total)
+                // PILOTO
                 Text(text = "PILOTO", style = MaterialTheme.typography.labelSmall)
                 OutlinedTextField(
                     value = uiState.piloto,
@@ -54,6 +58,7 @@ fun RegistroScreen(
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
+                // ESCUDERÍA
                 Text(text = "ESCUDERÍA", style = MaterialTheme.typography.labelSmall)
                 OutlinedTextField(
                     value = uiState.escuderia,
@@ -62,30 +67,60 @@ fun RegistroScreen(
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
+                // TIEMPO TOTAL
                 Text(text = "TIEMPO TOTAL (S)", style = MaterialTheme.typography.labelSmall)
                 OutlinedTextField(
                     value = uiState.tiempoTotal,
                     onValueChange = viewModel::onTiempoTotalChange,
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberDecimal)
-                )
-
-                // MOCKUP: Cambio de Neumáticos y Número de Neumáticos Cambiados (Usaremos solo texto por simplicidad inicial)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "CAMBIO DE NEUMÁTICOS: Soft", style = MaterialTheme.typography.bodyMedium)
-                Text(text = "NÚMERO DE NEUMÁTICOS CAMBIADOS: 4", style = MaterialTheme.typography.bodyMedium)
-
-                Spacer(modifier = Modifier.height(8.dp))
-                // Estado (Simple TextField, debería ser Dropdown)
-                Text(text = "ESTADO (Ok / Fallido)", style = MaterialTheme.typography.labelSmall)
-                OutlinedTextField(
-                    value = uiState.estado,
-                    onValueChange = viewModel::onEstadoChange,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Motivo del Fallo (Solo si el estado es Fallido)
-                if (uiState.estado.equals("Fallido", ignoreCase = true)) {
+                Spacer(modifier = Modifier.height(8.dp))
+                // CAMBIO NEUMÁTICOS
+                Text(text = "CAMBIO DE NEUMÁTICOS", style = MaterialTheme.typography.labelSmall)
+                OutlinedTextField(
+                    value = uiState.cambioNeumaticos,
+                    onValueChange = { viewModel.onCambioNeumaticosChange(it) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+                // NÚMERO NEUMÁTICOS
+                Text(text = "NÚMERO DE NEUMÁTICOS", style = MaterialTheme.typography.labelSmall)
+                OutlinedTextField(
+                    value = uiState.numeroNeumaticosCambiados.toString(),
+                    onValueChange = { viewModel.onNumeroNeumaticosChange(it) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+                // ESTADO DROPDOWN
+                Text(text = "ESTADO", style = MaterialTheme.typography.labelSmall)
+                ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+                    OutlinedTextField(
+                        value = uiState.estado,
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        options.forEach { selectionOption ->
+                            DropdownMenuItem(
+                                text = { Text(selectionOption) },
+                                onClick = {
+                                    viewModel.onEstadoChange(selectionOption)
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                if (uiState.estado == "Fallido") {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(text = "MOTIVO DEL FALLO", style = MaterialTheme.typography.labelSmall)
                     OutlinedTextField(
@@ -96,21 +131,21 @@ fun RegistroScreen(
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
-
-                // Información no editable (Mockup)
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
                     Column {
-                        Text(text = "MECÁNICO PRINCIPAL", style = MaterialTheme.typography.labelSmall)
-                        Text(text = uiState.mecanicoPrincipal, style = MaterialTheme.typography.bodyMedium)
+                        Text("MECÁNICO PRINCIPAL", style = MaterialTheme.typography.labelSmall)
+                        Text(uiState.mecanicoPrincipal)
                     }
                     Column(horizontalAlignment = Alignment.End) {
-                        Text(text = "FECHA Y HORA DEL PIT STOP", style = MaterialTheme.typography.labelSmall)
-                        Text(text = uiState.fechaHora, style = MaterialTheme.typography.bodyMedium)
+                        Text("FECHA Y HORA", style = MaterialTheme.typography.labelSmall)
+                        Text(uiState.fechaHora)
                     }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
 
-                // Requisito: GUARDAR y CANCELAR (Mockup)
+                Spacer(modifier = Modifier.height(24.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
@@ -118,15 +153,26 @@ fun RegistroScreen(
                     Button(
                         onClick = onCancel,
                         colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray),
-                        modifier = Modifier.weight(1f).height(50.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(50.dp)
                     ) {
                         Text("CANCELAR", color = Color.White)
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
-                        onClick = { viewModel.savePitStop(onSaveSuccess) },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC92828)), // Rojo F1
-                        modifier = Modifier.weight(1f).height(50.dp)
+                        onClick = {
+                            viewModel.savePitStop(onSuccess = {
+                                Toast.makeText(context, "Registro guardado", Toast.LENGTH_SHORT).show()
+                                onSaveSuccess()
+                            }, onErrorToast = {
+                                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                            })
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC92828)),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(50.dp)
                     ) {
                         Text("GUARDAR", color = Color.White)
                     }

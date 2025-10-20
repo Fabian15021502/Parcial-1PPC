@@ -1,5 +1,3 @@
-
-
 package com.example.parcial1ppc.ui.shared
 
 import androidx.compose.foundation.background
@@ -16,7 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 // ====================================================================
-// Componente para la fila de métricas de resumen (Thomas)
+// Componente para la fila de métricas de resumen
 // ====================================================================
 @Composable
 fun ResumenMetrica(titulo: String, valor: String, icon: @Composable () -> Unit) {
@@ -37,7 +35,7 @@ fun ResumenMetrica(titulo: String, valor: String, icon: @Composable () -> Unit) 
 }
 
 // ====================================================================
-// Componente auxiliar para las celdas de la tabla de Listado (Sebastian)
+// Componente auxiliar para las celdas de la tabla de Listado
 // ====================================================================
 @Composable
 fun RowScope.TableCell(
@@ -53,7 +51,10 @@ fun RowScope.TableCell(
             .weight(weight)
             .align(Alignment.CenterVertically),
         maxLines = 1,
-        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = fontWeight, color = color),
+        style = MaterialTheme.typography.bodyMedium.copy(
+            fontWeight = fontWeight,
+            color = color
+        ),
         textAlign = when (align) {
             Alignment.Start -> TextAlign.Start
             Alignment.End -> TextAlign.End
@@ -63,7 +64,7 @@ fun RowScope.TableCell(
 }
 
 // ====================================================================
-// Placeholder simple para el Gráfico de Barras (Thomas)
+// Placeholder simple para el Gráfico de Barras
 // ====================================================================
 @Composable
 fun BarChartComposable(data: List<Double>) {
@@ -78,25 +79,22 @@ fun BarChartComposable(data: List<Double>) {
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.Bottom
     ) {
-        data.forEachIndexed { index, time ->
-            // Normalizar el tiempo para la altura de la barra (ej: 2.3s es más rápido = más alto)
+        data.forEachIndexed { _, time ->
             val normalizedTime = if (maxTime != minTime) {
                 1f - ((time - minTime) / (maxTime - minTime)).toFloat()
             } else 0.5f
 
-            val barHeight = (0.3f + normalizedTime * 0.7f).coerceIn(0.1f, 1f) // Altura entre 10% y 100%
+            val barHeight = (0.3f + normalizedTime * 0.7f).coerceIn(0.1f, 1f)
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                // Etiqueta de tiempo (opcional)
                 Text(text = "%.1f".format(time), style = MaterialTheme.typography.labelSmall)
                 Spacer(modifier = Modifier.height(2.dp))
-                // La Barra
                 Box(
                     modifier = Modifier
                         .width(40.dp)
                         .fillMaxHeight(barHeight)
                         .background(
-                            Color(0xFFC92828), // Rojo F1
+                            Color(0xFFC92828),
                             shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)
                         )
                 )
@@ -110,5 +108,5 @@ fun BarChartComposable(data: List<Double>) {
             .padding(top = 8.dp),
         textAlign = TextAlign.Center,
         style = MaterialTheme.typography.bodySmall
-        )
+    )
 }

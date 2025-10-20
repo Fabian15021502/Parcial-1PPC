@@ -23,10 +23,11 @@ import androidx.compose.ui.unit.dp
 import com.example.parcial1ppc.data.model.PitStop
 import com.example.parcial1ppc.ui.shared.TableCell
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListadoScreen(
     viewModel: ListadoViewModel,
-    onNavigateToRegistro: () -> Unit,
+    onNavigateToRegistro: (PitStop?) -> Unit,
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -42,29 +43,27 @@ fun ListadoScreen(
                 }
             )
         },
-        // Botón flotante para registrar (Acceso rápido)
         floatingActionButton = {
-            FloatingActionButton(onClick = onNavigateToRegistro) {
+            FloatingActionButton(onClick = { onNavigateToRegistro(null) }) {
                 Icon(Icons.Filled.Add, contentDescription = "Registrar")
             }
         }
     ) { padding ->
-        Column(modifier = Modifier
-            .padding(padding)
-            .padding(horizontal = 16.dp)) {
-
-            // Requisito: Buscar pit stop
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .padding(horizontal = 16.dp)
+        ) {
             OutlinedTextField(
                 value = uiState.searchQuery,
                 onValueChange = viewModel::onSearchQueryChange,
-                label = { Text("Q Buscar (Piloto o Equipo)") },
+                label = { Text("Buscar (Piloto o Equipo)") },
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Buscar") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
             )
 
-            // Encabezados de la tabla (Mockup)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -72,17 +71,16 @@ fun ListadoScreen(
                     .padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                TableCell(text = "Núm.", weight = 0.15f, align = Alignment.Start, fontWeight = FontWeight.Bold)
-                TableCell(text = "Piloto", weight = 0.3f, align = Alignment.Start, fontWeight = FontWeight.Bold)
-                TableCell(text = "Tiempo(s)", weight = 0.2f, align = Alignment.End, fontWeight = FontWeight.Bold)
-                TableCell(text = "Estad", weight = 0.15f, align = Alignment.Center, fontWeight = FontWeight.Bold)
-                TableCell(text = "Acc", weight = 0.2f, align = Alignment.Center, fontWeight = FontWeight.Bold)
+                TableCell("Núm.", 0.15f, Alignment.Start, FontWeight.Bold)
+                TableCell("Piloto", 0.3f, Alignment.Start, FontWeight.Bold)
+                TableCell("Tiempo(s)", 0.2f, Alignment.End, FontWeight.Bold)
+                TableCell("Estad", 0.15f, Alignment.CenterHorizontally, FontWeight.Bold)
+                TableCell("Acc", 0.2f, Alignment.CenterHorizontally, FontWeight.Bold)
             }
 
-            // Requisito: Mostrar listado de pit stops
             LazyColumn {
-                items(uiState.pitStops, key = { it.id }) { pitStop ->
-                    PitStopRow(pitStop = pitStop, viewModel = viewModel)
+                items(uiState.pitStops, key = { it.id ?: 0 }) { pitStop ->
+                    PitStopRow(pitStop, viewModel, onNavigateToRegistro)
                     Divider()
                 }
             }
@@ -90,9 +88,12 @@ fun ListadoScreen(
     }
 }
 
-// Fila de datos individual con acciones
 @Composable
-fun PitStopRow(pitStop: PitStop, viewModel: ListadoViewModel) {
+fun PitStopRow(
+    pitStop: PitStop,
+    viewModel: ListadoViewModel,
+    onNavigateToRegistro: (PitStop) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -100,15 +101,16 @@ fun PitStopRow(pitStop: PitStop, viewModel: ListadoViewModel) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        TableCell(text = pitStop.id.toString(), weight = 0.15f, align = Alignment.Start)
-        TableCell(text = pitStop.piloto, weight = 0.3f, align = Alignment.Start)
-        TableCell(text = "%.1f".format(pitStop.tiempoTotal), weight = 0.2f, align = Alignment.End)
+        TableCell(pitStop.id?.toString() ?: "-", 0.15f, Alignment.Start)
+        TableCell(pitStop.piloto, 0.3f, Alignment.Start)
+        TableCell("%.1f".format(pitStop.tiempoTotal), 0.2f, Alignment.End)
         TableCell(
-            text = pitStop.estado, weight = 0.15f, align = Alignment.Center,
-            color = if (pitStop.estado == "Ok") Color(0xFF4CAF50) else Color(0xFFF44336) 
+            pitStop.estado,
+            0.15f,
+            Alignment.CenterHorizontally,
+            color = if (pitStop.estado == "Ok" || pitStop.estado == "Completado") Color(0xFF4CAF50) else Color(0xFFF44336)
         )
 
-        // Botones de Acción (Editar y Eliminar)
         Row(
             modifier = Modifier.weight(0.2f),
             horizontalArrangement = Arrangement.SpaceAround
@@ -116,14 +118,17 @@ fun PitStopRow(pitStop: PitStop, viewModel: ListadoViewModel) {
             Icon(
                 Icons.Filled.Edit,
                 contentDescription = "Editar",
-                modifier = Modifier.clickable { /* Tarea pendiente: Implementar edición */ },
+                modifier = Modifier.clickable {
+                    onNavigateToRegistro(pitStop) // navega a la pantalla de registro con el pitStop
+                },
                 tint = Color.Gray
             )
-            // Requisito: Eliminar pit stop
             Icon(
                 Icons.Filled.Delete,
                 contentDescription = "Eliminar",
-                modifier = Modifier.clickable { viewModel.deletePitStop(pitStop.id) },
+                modifier = Modifier.clickable {
+                    pitStop.id?.let { viewModel.deletePitStop(it) }
+                },
                 tint = Color.Red
             )
         }

@@ -22,19 +22,30 @@ data class PitStopEntity(
 // Extensiones para convertir entre PitStopEntity y PitStop
 fun PitStopEntity.toDomain(): PitStop {
     return PitStop(
-        id = this.id, piloto = this.piloto, escuderia = this.escuderia, tiempoTotal = this.tiempoTotal,
-        cambioNeumaticos = this.cambioNeumaticos, numeroNeumaticosCambiados = this.numeroNeumaticosCambiados,
-        estado = this.estado, motivoFallo = this.motivoFallo, mecanicoPrincipal = this.mecanicoPrincipal,
+        id = if (this.id <= 0) null else this.id,
+        piloto = this.piloto,
+        escuderia = this.escuderia,
+        tiempoTotal = this.tiempoTotal,
+        cambioNeumaticos = this.cambioNeumaticos,
+        numeroNeumaticosCambiados = this.numeroNeumaticosCambiados,
+        estado = this.estado,
+        motivoFallo = this.motivoFallo,
+        mecanicoPrincipal = this.mecanicoPrincipal,
         fechaHora = this.fechaHora
     )
 }
 
 fun PitStop.toEntity(): PitStopEntity {
     return PitStopEntity(
-        id = if (this.id == 0) 0 else this.id, // ID 0 para insertar, ID > 0 para actualizar
-        piloto = this.piloto, escuderia = this.escuderia, tiempoTotal = this.tiempoTotal,
-        cambioNeumaticos = this.cambioNeumaticos, numeroNeumaticosCambiados = this.numeroNeumaticosCambiados,
-        estado = this.estado, motivoFallo = this.motivoFallo, mecanicoPrincipal = this.mecanicoPrincipal,
+        id = this.id ?: 0, // Room autogenera si 0
+        piloto = this.piloto,
+        escuderia = this.escuderia,
+        tiempoTotal = this.tiempoTotal,
+        cambioNeumaticos = this.cambioNeumaticos,
+        numeroNeumaticosCambiados = this.numeroNeumaticosCambiados,
+        estado = this.estado,
+        motivoFallo = this.motivoFallo,
+        mecanicoPrincipal = this.mecanicoPrincipal,
         fechaHora = this.fechaHora
     )
 }

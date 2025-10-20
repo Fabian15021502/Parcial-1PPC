@@ -17,23 +17,9 @@ interface IPitStopRepository {
 
 class PitStopRepository(private val pitStopDao: PitStopDao) : IPitStopRepository {
 
-    // MutableStateFlow simula la fuente de datos reactiva (como un LiveData o Flow de Room)
-    private val _pitStops = MutableStateFlow(initialList)
-    override val pitStops: Flow<List<PitStop>> = _pitStops
-
-    override suspend fun addPitStop(pitStop: PitStop) {
-        // Implementa requisito: Guardar pit stop
-        _pitStops.update { currentList ->
-            // Simular un nuevo ID (si fuera una edición, el ID ya existiría)
-            val newId = currentList.maxOfOrNull { it.id }?.plus(1) ?: 1
-            currentList + pitStop.copy(id = newId)
-        }
-    }
-
-    override suspend fun deletePitStop(id: Int) {
-        // Implementa requisito: Eliminar pit stop
-        _pitStops.update { currentList ->
-            currentList.filter { it.id != id }
+    override fun getAllPitStops(): Flow<List<PitStop>> {
+        return pitStopDao.getAllPitStops().map { entities ->
+            entities.map { it.toDomain() }
         }
     }
 

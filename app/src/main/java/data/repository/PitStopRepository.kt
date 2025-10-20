@@ -6,7 +6,6 @@ import com.example.parcial1ppc.data.local.entity.toDomain
 import com.example.parcial1ppc.data.local.entity.toEntity
 import com.example.parcial1ppc.data.model.PitStop
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlin.random.Random

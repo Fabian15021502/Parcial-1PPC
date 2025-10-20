@@ -2,6 +2,10 @@
 
 package com.example.parcial1ppc.data.repository
 
+import com.example.parcial1ppc.data.local.dao.PitStopDao
+import com.example.parcial1ppc.data.local.entity.PitStopEntity
+import com.example.parcial1ppc.data.local.entity.toDomain
+import com.example.parcial1ppc.data.local.entity.toEntity
 import com.example.parcial1ppc.data.model.PitStop
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

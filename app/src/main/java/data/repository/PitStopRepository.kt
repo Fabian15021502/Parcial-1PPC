@@ -10,10 +10,10 @@ import kotlinx.coroutines.flow.map
 
 // Interfaz para el repositorio (ideal para pruebas unitarias)
 interface IPitStopRepository {
-    val pitStops: Flow<List<PitStop>>
-    suspend fun addPitStop(pitStop: PitStop)
-    suspend fun deletePitStop(id: Int) // Implementa requisito: Eliminar pit stop
-    fun searchPitStops(query: String): Flow<List<PitStop>> // Implementa requisito: Buscar pit stop
+    fun getAllPitStops(): Flow<List<PitStop>>
+    fun searchPitStops(query: String): Flow<List<PitStop>>
+    suspend fun savePitStop(pitStop: PitStop)
+    suspend fun deletePitStop(id: Int)
 }
 
 // Implementación temporal en memoria con datos de ejemplo

@@ -62,3 +62,35 @@ fun AppNavigation(factory: ViewModelProvider.Factory) {
 
     // El NavHost define la estructura de navegación, comenzando en la pantalla de resumen
     NavHost(navController = navController, startDestination = Destinations.RESUMEN) {
+
+        // Pantalla de Resumen
+        composable(Destinations.RESUMEN) {
+            val viewModel: ResumenViewModel = viewModel(factory = factory)
+            ResumenScreen(
+                viewModel = viewModel,
+                onNavigateToRegistro = { navController.navigate(Destinations.REGISTRO) },
+                onNavigateToListado = { navController.navigate(Destinations.LISTADO) }
+            )
+        }
+
+        // Pantalla de Listado
+        composable(Destinations.LISTADO) {
+            val viewModel: ListadoViewModel = viewModel(factory = factory)
+            ListadoScreen(
+                viewModel = viewModel,
+                onNavigateToRegistro = { navController.navigate(Destinations.REGISTRO) },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Pantalla de Registro/Edición
+        composable(Destinations.REGISTRO) {
+            val viewModel: RegistroViewModel = viewModel(factory = factory)
+            RegistroScreen(
+                viewModel = viewModel,
+                onSaveSuccess = { navController.popBackStack() }, // Navega atrás al guardar
+                onCancel = { navController.popBackStack() } // Navega atrás al cancelar
+            )
+        }
+    }
+}

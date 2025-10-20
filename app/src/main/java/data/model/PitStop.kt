@@ -1,3 +1,4 @@
+package com.example.parcial1ppc.data.model
 
 // El modelo de datos completo basado en el mockup de registro.
 data class PitStop(
